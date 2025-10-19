@@ -1,6 +1,6 @@
 """
-AI学习助手 - 使用Streamlit和Groq API
-这是一个智能学习伙伴，可以帮助你解答问题、解释概念、提供学习建议
+AI Learning Assistant - Using Streamlit and Groq API
+This is an intelligent learning companion that can help you answer questions, explain concepts, and provide learning advice
 """
 
 import streamlit as st
@@ -8,70 +8,70 @@ import os
 from groq import Groq
 from dotenv import load_dotenv
 
-# 加载环境变量
+# Load environment variables
 load_dotenv()
 
-# 初始化Groq客户端
+# Initialize Groq client
 def init_groq_client():
-    """初始化Groq API客户端"""
+    """Initialize Groq API client"""
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        st.error("⚠️ 请设置GROQ_API_KEY环境变量")
+        st.error("⚠️ Please set the GROQ_API_KEY environment variable")
         st.stop()
     return Groq(api_key=api_key)
 
-# 页面配置
+# Page configuration
 st.set_page_config(
-    page_title="AI学习助手",
+    page_title="AI Learning Assistant",
     page_icon="📚",
     layout="wide"
 )
 
-# 标题和说明
-st.title("📚 AI学习助手")
-st.markdown("你好！我是你的智能学习伙伴，可以帮你解答问题、解释概念、提供学习建议。")
+# Title and description
+st.title("📚 AI Learning Assistant")
+st.markdown("Hello! I'm your intelligent learning companion, here to help you answer questions, explain concepts, and provide learning advice.")
 
-# 初始化会话状态
+# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
-    # 添加欢迎消息
+    # Add welcome message
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "你好！我是你的AI学习助手。无论你想学习什么知识，或者有什么问题需要解答，都可以问我！💡"
+        "content": "Hello! I'm your AI Learning Assistant. Whatever you want to learn or any questions you have, feel free to ask me! 💡"
     })
 
-# 显示聊天历史
+# Display chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 用户输入
-if prompt := st.chat_input("输入你的问题..."):
-    # 添加用户消息到聊天历史
+# User input
+if prompt := st.chat_input("Enter your question..."):
+    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 获取AI回复
+    # Get AI response
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
 
         try:
-            # 初始化客户端
+            # Initialize client
             client = init_groq_client()
 
-            # 准备消息历史（添加系统提示）
+            # Prepare message history (add system prompt)
             messages = [
                 {
                     "role": "system",
-                    "content": "你是一个友好、耐心的AI学习助手。你的任务是帮助学生学习和理解各种知识。请用清晰、易懂的方式解释概念，并在必要时提供例子。保持鼓励和支持的态度。"
+                    "content": "You are a friendly, patient AI learning assistant. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude."
                 }
             ]
-            # 添加历史对话
+            # Add conversation history
             messages.extend(st.session_state.messages)
 
-            # 调用Groq API（流式输出）
+            # Call Groq API (streaming output)
             stream = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=messages,
@@ -80,7 +80,7 @@ if prompt := st.chat_input("输入你的问题..."):
                 stream=True
             )
 
-            # 显示流式响应
+            # Display streaming response
             for chunk in stream:
                 if chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
@@ -89,39 +89,39 @@ if prompt := st.chat_input("输入你的问题..."):
             message_placeholder.markdown(full_response)
 
         except Exception as e:
-            full_response = f"抱歉，发生了错误：{str(e)}"
+            full_response = f"Sorry, an error occurred: {str(e)}"
             message_placeholder.markdown(full_response)
 
-        # 添加AI回复到聊天历史
+        # Add AI response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-# 侧边栏
+# Sidebar
 with st.sidebar:
-    st.header("⚙️ 设置")
+    st.header("⚙️ Settings")
 
-    # 清空对话按钮
-    if st.button("🗑️ 清空对话"):
+    # Clear conversation button
+    if st.button("🗑️ Clear Conversation"):
         st.session_state.messages = []
         st.session_state.messages.append({
             "role": "assistant",
-            "content": "你好！我是你的AI学习助手。无论你想学习什么知识，或者有什么问题需要解答，都可以问我！💡"
+            "content": "Hello! I'm your AI Learning Assistant. Whatever you want to learn or any questions you have, feel free to ask me! 💡"
         })
         st.rerun()
 
     st.markdown("---")
-    st.markdown("### 💡 使用提示")
+    st.markdown("### 💡 Usage Tips")
     st.markdown("""
-    - 问我任何学习相关的问题
-    - 请我解释复杂的概念
-    - 让我帮你复习知识点
-    - 寻求学习方法建议
-    - 请我出题测试你的理解
+    - Ask me any learning-related questions
+    - Ask me to explain complex concepts
+    - Let me help you review knowledge points
+    - Seek learning method suggestions
+    - Ask me to create quizzes to test your understanding
     """)
 
     st.markdown("---")
-    st.markdown("### 📊 对话统计")
-    st.markdown(f"消息数量: {len(st.session_state.messages)}")
+    st.markdown("### 📊 Conversation Stats")
+    st.markdown(f"Message count: {len(st.session_state.messages)}")
 
     st.markdown("---")
-    st.markdown("**模型**: llama-3.3-70b-versatile")
-    st.markdown("**技术栈**: Streamlit + Groq API")
+    st.markdown("**Model**: llama-3.3-70b-versatile")
+    st.markdown("**Tech Stack**: Streamlit + Groq API")
