@@ -37,8 +37,11 @@ if "messages" not in st.session_state:
     # Add welcome message
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Hello! I'm your AI Learning Assistant. Whatever you want to learn or any questions you have, feel free to ask me! 💡"
+        "content": "Hello! I'm Edward, your AI Learning Assistant. What's your name? I'd love to get to know you and help you with whatever you want to learn! 💡"
     })
+
+if "user_name" not in st.session_state:
+    st.session_state.user_name = None
 
 # Display chat history
 for message in st.session_state.messages:
@@ -62,10 +65,11 @@ if prompt := st.chat_input("Enter your question..."):
             client = init_groq_client()
 
             # Prepare message history (add system prompt)
+            user_name_context = f" The user's name is {st.session_state.user_name}." if st.session_state.user_name else " If the user hasn't introduced themselves yet, ask for their name in a friendly way."
             messages = [
                 {
                     "role": "system",
-                    "content": "You are a friendly, patient AI learning assistant. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude."
+                    "content": f"You are Edward, a friendly and patient AI learning assistant. You use he/him pronouns. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude.{user_name_context} When the user tells you their name, remember it and use it occasionally in conversation to make the interaction more personal."
                 }
             ]
             # Add conversation history
@@ -88,6 +92,21 @@ if prompt := st.chat_input("Enter your question..."):
 
             message_placeholder.markdown(full_response)
 
+            # Try to extract user's name if they mentioned it
+            if not st.session_state.user_name and prompt:
+                # Simple name detection patterns
+                name_patterns = ["my name is", "i'm", "i am", "call me", "this is"]
+                prompt_lower = prompt.lower()
+                for pattern in name_patterns:
+                    if pattern in prompt_lower:
+                        # Extract potential name (simple approach)
+                        parts = prompt_lower.split(pattern)
+                        if len(parts) > 1:
+                            potential_name = parts[1].strip().split()[0] if parts[1].strip() else None
+                            if potential_name and len(potential_name) > 1:
+                                st.session_state.user_name = potential_name.capitalize()
+                                break
+
         except Exception as e:
             full_response = f"Sorry, an error occurred: {str(e)}"
             message_placeholder.markdown(full_response)
@@ -104,9 +123,14 @@ with st.sidebar:
         st.session_state.messages = []
         st.session_state.messages.append({
             "role": "assistant",
-            "content": "Hello! I'm your AI Learning Assistant. Whatever you want to learn or any questions you have, feel free to ask me! 💡"
+            "content": "Hello! I'm Edward, your AI Learning Assistant. What's your name? I'd love to get to know you and help you with whatever you want to learn! 💡"
         })
+        st.session_state.user_name = None
         st.rerun()
+
+    # Display user name if known
+    if st.session_state.user_name:
+        st.markdown(f"### 👤 User: {st.session_state.user_name}")
 
     st.markdown("---")
     st.markdown("### 💡 Usage Tips")
@@ -123,5 +147,7 @@ with st.sidebar:
     st.markdown(f"Message count: {len(st.session_state.messages)}")
 
     st.markdown("---")
+    st.markdown("### 🤖 About Edward")
+    st.markdown("**Name**: Edward (he/him)")
     st.markdown("**Model**: llama-3.3-70b-versatile")
     st.markdown("**Tech Stack**: Streamlit + Groq API")
