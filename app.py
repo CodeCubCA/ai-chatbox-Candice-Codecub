@@ -7,6 +7,11 @@ import streamlit as st
 import os
 from groq import Groq
 from dotenv import load_dotenv
+from PIL import Image
+import base64
+from io import BytesIO
+import PyPDF2
+from streamlit_paste_button import paste_image_button
 
 # Load environment variables
 load_dotenv()
@@ -43,17 +48,115 @@ if "messages" not in st.session_state:
 if "user_name" not in st.session_state:
     st.session_state.user_name = None
 
+if "uploaded_files" not in st.session_state:
+    st.session_state.uploaded_files = []
+
+if "pasted_image" not in st.session_state:
+    st.session_state.pasted_image = None
+
 # Display chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+        # Display attached files if any
+        if "files" in message:
+            for file_info in message["files"]:
+                if file_info["type"] == "image":
+                    st.image(file_info["data"], caption=file_info["name"], use_container_width=True)
+                elif file_info["type"] == "text":
+                    with st.expander(f"📄 {file_info['name']}"):
+                        st.text(file_info["content"][:1000] + ("..." if len(file_info["content"]) > 1000 else ""))
+
+# File upload area (above chat input)
+col1, col2 = st.columns([3, 1])
+with col1:
+    uploaded_file = st.file_uploader("📎 Upload a file (image, PDF, or text)", type=["png", "jpg", "jpeg", "gif", "pdf", "txt", "py", "js", "html", "css", "json"], key="file_uploader")
+with col2:
+    paste_result = paste_image_button(
+        label="📋 Paste Image (Ctrl+V)",
+        background_color="#FF4B4B",
+        hover_background_color="#FF6B6B",
+        errors="ignore"
+    )
+
+# Handle pasted image
+if paste_result.image_data is not None:
+    st.session_state.pasted_image = Image.open(BytesIO(paste_result.image_data))
+    st.success("✅ Image pasted! Now ask your question below.")
+
+# Display pasted image preview
+if st.session_state.pasted_image is not None:
+    st.image(st.session_state.pasted_image, caption="Pasted Image Preview", width=300)
 
 # User input
 if prompt := st.chat_input("Enter your question..."):
+    # Process uploaded file if any
+    user_message = {"role": "user", "content": prompt}
+    file_context = ""
+
+    # Check for pasted image first
+    if st.session_state.pasted_image is not None:
+        file_info = []
+        file_info.append({
+            "type": "image",
+            "name": "pasted_image.png",
+            "data": st.session_state.pasted_image
+        })
+        file_context = f"\n\n[User pasted an image from clipboard. Please acknowledge that you can see the image and describe what you observe, or answer any questions about it.]"
+        user_message["files"] = file_info
+        # Clear pasted image after use
+        st.session_state.pasted_image = None
+    elif uploaded_file is not None:
+        file_info = []
+        file_type = uploaded_file.type
+
+        # Handle image files
+        if file_type.startswith("image/"):
+            image = Image.open(uploaded_file)
+            file_info.append({
+                "type": "image",
+                "name": uploaded_file.name,
+                "data": image
+            })
+            file_context = f"\n\n[User uploaded an image: {uploaded_file.name}. Please acknowledge that you can see the image and describe what you observe, or answer any questions about it.]"
+
+        # Handle PDF files
+        elif file_type == "application/pdf":
+            pdf_reader = PyPDF2.PdfReader(uploaded_file)
+            pdf_text = ""
+            for page in pdf_reader.pages:
+                pdf_text += page.extract_text() + "\n"
+            file_info.append({
+                "type": "text",
+                "name": uploaded_file.name,
+                "content": pdf_text
+            })
+            file_context = f"\n\n[User uploaded a PDF: {uploaded_file.name}]\nContent:\n{pdf_text[:2000]}{'...' if len(pdf_text) > 2000 else ''}"
+
+        # Handle text files
+        elif file_type.startswith("text/") or uploaded_file.name.endswith(('.py', '.js', '.html', '.css', '.json', '.txt')):
+            text_content = uploaded_file.read().decode("utf-8")
+            file_info.append({
+                "type": "text",
+                "name": uploaded_file.name,
+                "content": text_content
+            })
+            file_context = f"\n\n[User uploaded a file: {uploaded_file.name}]\nContent:\n{text_content[:2000]}{'...' if len(text_content) > 2000 else ''}"
+
+        if file_info:
+            user_message["files"] = file_info
+
     # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append(user_message)
     with st.chat_message("user"):
         st.markdown(prompt)
+        if "files" in user_message:
+            for file_info in user_message["files"]:
+                if file_info["type"] == "image":
+                    st.image(file_info["data"], caption=file_info["name"], use_container_width=True)
+                elif file_info["type"] == "text":
+                    with st.expander(f"📄 {file_info['name']}"):
+                        st.text(file_info["content"][:1000] + ("..." if len(file_info["content"]) > 1000 else ""))
 
     # Get AI response
     with st.chat_message("assistant"):
@@ -69,11 +172,20 @@ if prompt := st.chat_input("Enter your question..."):
             messages = [
                 {
                     "role": "system",
-                    "content": f"You are Edward, a friendly and patient AI learning assistant. You use he/him pronouns. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude.{user_name_context} When the user tells you their name, remember it and use it occasionally in conversation to make the interaction more personal."
+                    "content": f"You are Edward, a friendly and patient AI learning assistant. You use he/him pronouns. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude.{user_name_context} When the user tells you their name, remember it and use it occasionally in conversation to make the interaction more personal. When users upload files (images, PDFs, code, etc.), acknowledge that you've received them and provide helpful analysis, explanations, or answers about the content."
                 }
             ]
-            # Add conversation history
-            messages.extend(st.session_state.messages)
+            # Add conversation history with file context
+            for msg in st.session_state.messages:
+                msg_content = msg["content"]
+                # Add file context for messages with files
+                if msg["role"] == "user" and "files" in msg:
+                    for file_info in msg["files"]:
+                        if file_info["type"] == "image":
+                            msg_content += f"\n\n[User uploaded an image: {file_info['name']}. Note: You cannot actually see images, but you should acknowledge the upload and ask the user to describe it or tell you what they need help with regarding the image.]"
+                        elif file_info["type"] == "text":
+                            msg_content += f"\n\n[User uploaded file: {file_info['name']}]\nContent:\n{file_info['content'][:2000]}{'...' if len(file_info['content']) > 2000 else ''}"
+                messages.append({"role": msg["role"], "content": msg_content})
 
             # Call Groq API (streaming output)
             stream = client.chat.completions.create(
