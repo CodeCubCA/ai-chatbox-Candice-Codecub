@@ -1,6 +1,9 @@
 # 环境变量文件
 .env
 
+# Claude Code local settings (may contain secrets)
+.claude/settings.local.json
+
 # Python缓存文件
 __pycache__/
 *.py[cod]
