@@ -91,13 +91,11 @@ Experience the AI Study Buddy in action without any setup required.
 
 ## Screenshots
 
-![AI Chat Assistant Interface](screenshots/main-interface.png)
-*Main chat interface with conversation history*
+![AI Learning Assistant Interface](screenshots/ai-assistant-chat.png)
+*AI Learning Assistant chat interface showing personalized learning support with Edward*
 
-![Example Conversation](screenshots/example-chat.png)
-*AI Study Buddy helping with a math problem*
-
-> **Note:** Add screenshots to the `screenshots/` folder in your repository
+![Portfolio Website](screenshots/portfolio-website.png)
+*Personal portfolio website showcasing projects and skills*
 
 ## API Key Setup
 
