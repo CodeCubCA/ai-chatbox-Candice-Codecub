@@ -1,0 +1,145 @@
+# AI Chat Assistant - Study Buddy 📚
+
+A personalized AI-powered study companion built with Streamlit and powered by Groq's Llama 3.3 70B model. This intelligent chatbot helps students learn more effectively through interactive conversations, explanations, and study support.
+
+## About
+
+AI Chat Assistant is designed to be your personal study buddy, providing instant help with homework, explanations of complex concepts, and interactive learning support. Built with a focus on education, this chatbot leverages the power of advanced AI to make learning more accessible and engaging.
+
+The assistant maintains conversation context, adapts to your learning style, and provides detailed explanations tailored to your needs. Whether you're tackling difficult math problems, understanding scientific concepts, or seeking help with writing, this study buddy is here to help.
+
+## Features
+
+- 💬 **Interactive Conversations** - Natural, context-aware conversations that feel like talking to a real tutor
+- 🧠 **Intelligent Learning Support** - Get explanations, examples, and step-by-step guidance on various topics
+- 📝 **Conversation Memory** - The chatbot remembers your conversation history for coherent, contextual responses
+- ⚡ **Fast Response Time** - Powered by Groq's lightning-fast inference for near-instant answers
+- 🎨 **Clean, User-Friendly Interface** - Simple and intuitive design built with Streamlit
+- 🔒 **Secure API Integration** - Safe handling of API keys through environment variables
+
+## Technologies Used
+
+- **Python 3.9+** - Core programming language
+- **Streamlit** - Web application framework for the user interface
+- **Groq API** - AI inference platform
+- **Llama 3.3 70B** - Advanced large language model
+- **python-dotenv** - Environment variable management
+- **Git** - Version control
+
+## How to Run Locally
+
+### Prerequisites
+- Python 3.9 or higher
+- A Groq API key (see [API Key Setup](#api-key-setup) section)
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/Candice/ai-chatbox.git
+cd ai-chatbox
+```
+
+### Step 2: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Configure Environment Variables
+Create a `.env` file in the project root directory:
+```bash
+# .env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Replace `your_groq_api_key_here` with your actual Groq API key.
+
+### Step 4: Run the Application
+```bash
+streamlit run app.py
+```
+
+The application will open in your default browser at `http://localhost:8501`.
+
+## Deployment
+
+### Deploy to Streamlit Cloud
+
+1. **Fork or push this repository to your GitHub account**
+
+2. **Go to [Streamlit Cloud](https://streamlit.io/cloud)**
+
+3. **Click "New app" and select your repository**
+
+4. **Configure your app:**
+   - Repository: `Candice/ai-chatbox`
+   - Branch: `main`
+   - Main file path: `app.py`
+
+5. **Add your secrets:**
+   - Go to "Advanced settings" → "Secrets"
+   - Add your environment variables:
+     ```toml
+     GROQ_API_KEY = "your_groq_api_key_here"
+     ```
+
+6. **Click "Deploy"** and wait for your app to launch!
+
+## Live Demo
+
+🌐 **[Try it live here!](your-streamlit-link)**
+
+Experience the AI Study Buddy in action without any setup required.
+
+## Screenshots
+
+![AI Chat Assistant Interface](screenshots/main-interface.png)
+*Main chat interface with conversation history*
+
+![Example Conversation](screenshots/example-chat.png)
+*AI Study Buddy helping with a math problem*
+
+> **Note:** Add screenshots to the `screenshots/` folder in your repository
+
+## API Key Setup
+
+### Getting Your Groq API Key
+
+1. Visit [Groq Console](https://console.groq.com/)
+2. Sign up or log in to your account
+3. Navigate to the API Keys section
+4. Click "Create API Key"
+5. Copy your API key and save it securely
+6. Add it to your `.env` file or Streamlit Cloud secrets
+
+**Important:** Never commit your API key to version control. Always use environment variables or secrets management.
+
+## Future Improvements
+
+- [ ] Add support for multiple AI models (GPT-4, Claude, etc.)
+- [ ] Implement conversation export functionality (PDF, TXT)
+- [ ] Add subject-specific study modes (Math, Science, Languages)
+- [ ] Include voice input/output capabilities
+- [ ] Create flashcard generation from conversations
+- [ ] Add multilingual support
+- [ ] Implement user accounts and conversation history storage
+- [ ] Add code execution environment for programming help
+
+## Author
+
+**Candice**
+
+- GitHub: [@Candice](https://github.com/Candice)
+- Project Repository: [ai-chatbox](https://github.com/Candice/ai-chatbox)
+
+---
+
+### License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+### Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Candice/ai-chatbox/issues).
+
+---
+
+Made with ❤️ for students everywhere
