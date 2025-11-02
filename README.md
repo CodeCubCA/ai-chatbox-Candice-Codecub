@@ -94,6 +94,9 @@ Experience the AI Study Buddy in action without any setup required.
 ![AI Learning Assistant Interface](screenshots/ai-assistant-chat.png)
 *AI Learning Assistant chat interface showing personalized learning support with Edward*
 
+![Portfolio Website](screenshots/portfolio-website.png)
+*Personal portfolio website showcasing Candice Cui as a Passionate Student Developer*
+
 ## API Key Setup
 
 ### Getting Your Groq API Key
