@@ -1,29 +1,45 @@
-# AI Chat Assistant - Study Buddy 📚
+# Candice's Projects Portfolio 🚀
 
-A personalized AI-powered study companion built with Streamlit and powered by Groq's Llama 3.3 70B model. This intelligent chatbot helps students learn more effectively through interactive conversations, explanations, and study support.
+A showcase of my web development and AI projects, featuring an AI-powered study companion and my personal portfolio website.
 
-## About
+## Projects Overview
 
-AI Chat Assistant is designed to be your personal study buddy, providing instant help with homework, explanations of complex concepts, and interactive learning support. Built with a focus on education, this chatbot leverages the power of advanced AI to make learning more accessible and engaging.
+This repository showcases two main projects by Candice Cui:
 
-The assistant maintains conversation context, adapts to your learning style, and provides detailed explanations tailored to your needs. Whether you're tackling difficult math problems, understanding scientific concepts, or seeking help with writing, this study buddy is here to help.
+### 1. AI Chat Assistant - Study Buddy 📚
+A personalized AI-powered study companion built with Streamlit and powered by Groq's Llama 3.3 70B model. This intelligent chatbot helps students learn more effectively through interactive conversations, explanations, and study support. The assistant maintains conversation context, adapts to your learning style, and provides detailed explanations tailored to your needs.
+
+### 2. Personal Portfolio Website 💼
+A professional portfolio website showcasing my work as a Passionate Student Developer. Built with HTML5, CSS3, and JavaScript, featuring a clean, modern design with interactive elements and responsive layouts.
 
 ## Features
 
+### AI Chat Assistant Features
 - 💬 **Interactive Conversations** - Natural, context-aware conversations that feel like talking to a real tutor
 - 🧠 **Intelligent Learning Support** - Get explanations, examples, and step-by-step guidance on various topics
 - 📝 **Conversation Memory** - The chatbot remembers your conversation history for coherent, contextual responses
 - ⚡ **Fast Response Time** - Powered by Groq's lightning-fast inference for near-instant answers
-- 🎨 **Clean, User-Friendly Interface** - Simple and intuitive design built with Streamlit
 - 🔒 **Secure API Integration** - Safe handling of API keys through environment variables
+
+### Portfolio Website Features
+- 🎨 **Modern Design** - Clean, professional interface with smooth animations
+- 📱 **Responsive Layout** - Works perfectly on desktop, tablet, and mobile devices
+- 💻 **Interactive Code Display** - Showcases coding skills with animated code snippets
+- 🎮 **Project Showcase** - Highlights games and web applications I've built
 
 ## Technologies Used
 
+### AI Chat Assistant
 - **Python 3.9+** - Core programming language
 - **Streamlit** - Web application framework for the user interface
 - **Groq API** - AI inference platform
 - **Llama 3.3 70B** - Advanced large language model
 - **python-dotenv** - Environment variable management
+
+### Portfolio Website
+- **HTML5** - Structure and content
+- **CSS3** - Styling and animations
+- **JavaScript** - Interactive functionality
 - **Git** - Version control
 
 ## How to Run Locally
@@ -83,19 +99,23 @@ The application will open in your default browser at `http://localhost:8501`.
 
 6. **Click "Deploy"** and wait for your app to launch!
 
-## Live Demo
+## Live Demos
 
-🌐 **[Try it live here!](your-streamlit-link)**
+### AI Chat Assistant
+🌐 **[Try the AI Study Buddy](your-streamlit-link)**
 
-Experience the AI Study Buddy in action without any setup required.
+### Portfolio Website
+🌐 **[View Portfolio Website](https://Candicegithub.io/profile-website)**
 
 ## Screenshots
 
+### AI Chat Assistant
 ![AI Learning Assistant Interface](screenshots/ai-assistant-chat.png)
 *AI Learning Assistant chat interface showing personalized learning support with Edward*
 
+### Portfolio Website
 ![Portfolio Website](screenshots/portfolio-website.png)
-*Personal portfolio website showcasing Candice Cui as a Passionate Student Developer*
+*Personal portfolio website homepage showcasing Candice Cui as a Passionate Student Developer*
 
 ## API Key Setup
 
