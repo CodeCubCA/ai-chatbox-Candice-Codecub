@@ -1,11 +1,11 @@
 """
-AI Learning Assistant - Using Streamlit and Groq API
+AI Learning Assistant - Using Streamlit and Google Gemini API
 This is an intelligent learning companion that can help you answer questions, explain concepts, and provide learning advice
 """
 
 import streamlit as st
 import os
-from groq import Groq
+import google.generativeai as genai
 from dotenv import load_dotenv
 from PIL import Image
 import base64
@@ -16,14 +16,15 @@ from streamlit_paste_button import paste_image_button
 # Load environment variables
 load_dotenv()
 
-# Initialize Groq client
-def init_groq_client():
-    """Initialize Groq API client"""
-    api_key = os.getenv("GROQ_API_KEY")
+# Initialize Gemini client
+def init_gemini_client():
+    """Initialize Google Gemini API client"""
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        st.error("⚠️ Please set the GROQ_API_KEY environment variable")
+        st.error("⚠️ Please set the GEMINI_API_KEY environment variable")
         st.stop()
-    return Groq(api_key=api_key)
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('models/gemini-2.5-flash')
 
 # Page configuration
 st.set_page_config(
@@ -165,18 +166,15 @@ if prompt := st.chat_input("Enter your question..."):
 
         try:
             # Initialize client
-            client = init_groq_client()
+            model = init_gemini_client()
 
             # Prepare message history (add system prompt)
             user_name_context = f" The user's name is {st.session_state.user_name}." if st.session_state.user_name else " If the user hasn't introduced themselves yet, ask for their name in a friendly way."
-            messages = [
-                {
-                    "role": "system",
-                    "content": f"You are Edward, a friendly and patient AI learning assistant. You use he/him pronouns. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude.{user_name_context} When the user tells you their name, remember it and use it occasionally in conversation to make the interaction more personal. When users upload files (images, PDFs, code, etc.), acknowledge that you've received them and provide helpful analysis, explanations, or answers about the content."
-                }
-            ]
-            # Add conversation history with file context
-            for msg in st.session_state.messages:
+            system_prompt = f"You are Edward, a friendly and patient AI learning assistant. You use he/him pronouns. Your task is to help students learn and understand various topics. Please explain concepts in a clear, easy-to-understand way, and provide examples when necessary. Maintain an encouraging and supportive attitude.{user_name_context} When the user tells you their name, remember it and use it occasionally in conversation to make the interaction more personal. When users upload files (images, PDFs, code, etc.), acknowledge that you've received them and provide helpful analysis, explanations, or answers about the content."
+
+            # Build conversation history for Gemini
+            chat_history = []
+            for msg in st.session_state.messages[:-1]:  # Exclude the last message (current user input)
                 msg_content = msg["content"]
                 # Add file context for messages with files
                 if msg["role"] == "user" and "files" in msg:
@@ -185,21 +183,25 @@ if prompt := st.chat_input("Enter your question..."):
                             msg_content += f"\n\n[User uploaded an image: {file_info['name']}. Note: You cannot actually see images, but you should acknowledge the upload and ask the user to describe it or tell you what they need help with regarding the image.]"
                         elif file_info["type"] == "text":
                             msg_content += f"\n\n[User uploaded file: {file_info['name']}]\nContent:\n{file_info['content'][:2000]}{'...' if len(file_info['content']) > 2000 else ''}"
-                messages.append({"role": msg["role"], "content": msg_content})
 
-            # Call Groq API (streaming output)
-            stream = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=messages,
-                temperature=0.7,
-                max_tokens=2048,
-                stream=True
-            )
+                chat_history.append({
+                    "role": "user" if msg["role"] == "user" else "model",
+                    "parts": [msg_content]
+                })
+
+            # Start chat with history
+            chat = model.start_chat(history=chat_history)
+
+            # Prepare current user message with system prompt
+            current_message = system_prompt + "\n\n" + prompt + file_context
+
+            # Call Gemini API (streaming output)
+            response = chat.send_message(current_message, stream=True)
 
             # Display streaming response
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    full_response += chunk.choices[0].delta.content
+            for chunk in response:
+                if chunk.text:
+                    full_response += chunk.text
                     message_placeholder.markdown(full_response + "▌")
 
             message_placeholder.markdown(full_response)
@@ -261,5 +263,5 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🤖 About Edward")
     st.markdown("**Name**: Edward (he/him)")
-    st.markdown("**Model**: llama-3.3-70b-versatile")
-    st.markdown("**Tech Stack**: Streamlit + Groq API")
+    st.markdown("**Model**: Google Gemini 2.5 Flash")
+    st.markdown("**Tech Stack**: Streamlit + Google Gemini API")
