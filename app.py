@@ -11,7 +11,6 @@ from PIL import Image
 import base64
 from io import BytesIO
 import PyPDF2
-from streamlit_paste_button import paste_image_button
 
 # Load environment variables
 load_dotenv()
@@ -52,8 +51,6 @@ if "user_name" not in st.session_state:
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
-if "pasted_image" not in st.session_state:
-    st.session_state.pasted_image = None
 
 # Display chat history
 for message in st.session_state.messages:
@@ -69,25 +66,7 @@ for message in st.session_state.messages:
                         st.text(file_info["content"][:1000] + ("..." if len(file_info["content"]) > 1000 else ""))
 
 # File upload area (above chat input)
-col1, col2 = st.columns([3, 1])
-with col1:
-    uploaded_file = st.file_uploader("📎 Upload a file (image, PDF, or text)", type=["png", "jpg", "jpeg", "gif", "pdf", "txt", "py", "js", "html", "css", "json"], key="file_uploader")
-with col2:
-    paste_result = paste_image_button(
-        label="📋 Paste Image (Ctrl+V)",
-        background_color="#FF4B4B",
-        hover_background_color="#FF6B6B",
-        errors="ignore"
-    )
-
-# Handle pasted image
-if paste_result.image_data is not None:
-    st.session_state.pasted_image = Image.open(BytesIO(paste_result.image_data))
-    st.success("✅ Image pasted! Now ask your question below.")
-
-# Display pasted image preview
-if st.session_state.pasted_image is not None:
-    st.image(st.session_state.pasted_image, caption="Pasted Image Preview", width=300)
+uploaded_file = st.file_uploader("📎 Upload a file (image, PDF, or text)", type=["png", "jpg", "jpeg", "gif", "pdf", "txt", "py", "js", "html", "css", "json"], key="file_uploader")
 
 # User input
 if prompt := st.chat_input("Enter your question..."):
@@ -95,19 +74,7 @@ if prompt := st.chat_input("Enter your question..."):
     user_message = {"role": "user", "content": prompt}
     file_context = ""
 
-    # Check for pasted image first
-    if st.session_state.pasted_image is not None:
-        file_info = []
-        file_info.append({
-            "type": "image",
-            "name": "pasted_image.png",
-            "data": st.session_state.pasted_image
-        })
-        file_context = f"\n\n[User pasted an image from clipboard. Please acknowledge that you can see the image and describe what you observe, or answer any questions about it.]"
-        user_message["files"] = file_info
-        # Clear pasted image after use
-        st.session_state.pasted_image = None
-    elif uploaded_file is not None:
+    if uploaded_file is not None:
         file_info = []
         file_type = uploaded_file.type
 
